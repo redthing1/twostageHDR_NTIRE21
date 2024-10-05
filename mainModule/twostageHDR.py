@@ -432,19 +432,19 @@ class twostageHDR:
                 # log the output shape of the HDR range network
                 print(f"HDR Net Output Shape: {hdrnet_output.shape}, type: {hdrnet_output.dtype}, range: {hdrnet_output.min()}, {hdrnet_output.max()}")
 
-                # # let's cook it to onnx (./weights/twostagehdr_hdrrec.onnx)
+                # # let's cook it to onnx (./weights/twostagehdr_bitexpand.onnx)
                 # torch.onnx.export(
                 #     self.HDRRec,
                 #     attentionnet_output,
-                #     "./weights/twostagehdr_hdrrec.onnx",
+                #     "./weights/twostagehdr_bitexpand.onnx",
                 #     # verbose=True,
                 #     input_names=["input"],
                 #     output_names=["output"],
                 # )
                 # # as a test, let's load the onnx model and run it, then use its outputs
-                # onnx_model = onnx.load("./weights/twostagehdr_hdrrec.onnx")
+                # onnx_model = onnx.load("./weights/twostagehdr_bitexpand.onnx")
                 # onnx.checker.check_model(onnx_model)
-                # ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_hdrrec.onnx")
+                # ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_bitexpand.onnx")
                 # ort_inputs = {ort_session.get_inputs()[0].name: attentionnet_output.cpu().numpy()}
                 # ort_outs = ort_session.run(None, ort_inputs)
                 # print(f"Output Shape: {ort_outs[0].shape}, {ort_outs[0].max()}, {ort_outs[0].min()}")
