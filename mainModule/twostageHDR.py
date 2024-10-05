@@ -412,7 +412,9 @@ class twostageHDR:
                 #     self.attentionNet,
                 #     imgLDR,
                 #     "./weights/twostagehdr_attention.onnx",
-                #     verbose=True,
+                #     # verbose=True,
+                #     input_names=["input"],
+                #     output_names=["output"],
                 # )
                 # # as a test, let's load the onnx model and run it, then use its outputs
                 # import onnx
@@ -435,7 +437,9 @@ class twostageHDR:
                 #     self.HDRRec,
                 #     attentionnet_output,
                 #     "./weights/twostagehdr_hdrrec.onnx",
-                #     verbose=True,
+                #     # verbose=True,
+                #     input_names=["input"],
+                #     output_names=["output"],
                 # )
                 # # as a test, let's load the onnx model and run it, then use its outputs
                 # onnx_model = onnx.load("./weights/twostagehdr_hdrrec.onnx")
