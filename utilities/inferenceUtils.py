@@ -15,6 +15,7 @@ from PIL import Image
 from dataTools.dataNormalization import *
 import skimage.io as io
 import imageio
+from .hdrstuff import RGB_to_YUV, writeYUVFile
 
 # set OPENCV_IO_ENABLE_OPENEXR
 os.environ['OPENCV_IO_ENABLE_OPENEXR'] = '1'
@@ -126,12 +127,15 @@ class inference():
             imageSavingPath = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ext
             imageSavingPath16bit = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ext
             imageSavingPathExr = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ".exr"
+            imageSavingPathYUV = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ".yuv"
             alignRationPath = self.outputRootDir + "/" + extractFileName(inputImagePath, True)  + '_alignratio.npy'
             imgSq = modelOutput.squeeze(0).cpu().numpy()
             imgReshape =  np.transpose(imgSq,(1,2,0))
             imwrite_uint16_png(imageSavingPath16bit, imgReshape, alignRationPath)
             imwrite_openexr(imageSavingPathExr, imgReshape)
             #save_image(modelOutput[0], imageSavingPath)
+            # yuv_data = RGB_to_YUV(imgReshape, gamut="bt2020")
+            # writeYUVFile(imageSavingPathYUV, yuv_data)
         
         #save_image(self.unNormalize(modelOutput[0]), imageSavingPath)
         #print(imageSavingPath)

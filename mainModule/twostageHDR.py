@@ -398,14 +398,14 @@ class twostageHDR:
 
                 # log the input shape of the inputs
                 print(
-                    f"Input Shape: {imgLDR.shape}, {lumLDR.shape}, {imgPath}, {imgLDR.max()}, {imgLDR.min()}"
+                    f"Input Shape: {imgLDR.shape}, {lumLDR.shape}, {imgPath}, range: {imgLDR.min()}, {imgLDR.max()}"
                 )
 
                 # run the model network (attention net)
                 attentionnet_output = self.attentionNet(imgLDR.to(device))  # .to(device)
 
                 # log the output shape of the attention network
-                print(f"Attention Net Output Shape: {attentionnet_output.shape}, {attentionnet_output.max()}, {attentionnet_output.min()}")
+                print(f"Attention Net Output Shape: {attentionnet_output.shape}, range: {attentionnet_output.min()}, {attentionnet_output.max()}")
 
                 # # let's cook it to onnx (./weights/twostagehdr_attention.onnx)
                 # torch.onnx.export(
@@ -428,7 +428,7 @@ class twostageHDR:
                 torch.cuda.empty_cache()
                 hdrnet_output = self.HDRRec(attentionnet_output.detach())
                 # log the output shape of the HDR range network
-                print(f"HDR Range Net Output Shape: {hdrnet_output.shape}, {hdrnet_output.max()}, {hdrnet_output.min()}")
+                print(f"HDR Net Output Shape: {hdrnet_output.shape}, type: {hdrnet_output.dtype}, range: {hdrnet_output.min()}, {hdrnet_output.max()}")
 
                 # # let's cook it to onnx (./weights/twostagehdr_hdrrec.onnx)
                 # torch.onnx.export(

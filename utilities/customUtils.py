@@ -25,7 +25,11 @@ def extractFileName(path, withoutExtension = None):
     #     return tail.split(".")[-2] or ntpath.basename(head).split(".")[-2]
 
     # return tail or ntpath.basename(head)
-    return ntpath.basename(path)
+    # basename without extension
+    name, ext = os.path.splitext(os.path.basename(path))
+    if withoutExtension:
+        return name
+    return name + ext
     
 
 

@@ -1,3 +1,15 @@
+# simple usage
+
+generate hdr:
+```sh
+poetry run python main.py -i -s ./test/in/ser2 -d ./test/out
+```
+
+encode to a video with ffmpeg:
+```sh
+ffmpeg -y -loop 1 -i ./test/out/va_f1.exr -t 5 -vf "scale=out_color_matrix=bt2020:out_h_chr_pos=0:out_v_chr_pos=0,format=yuv420p10le" -c:v libx265 -preset medium -x265-params "crf=15:colorprim=bt2020:transfer=bt2020-10:colormatrix=bt2020nc" -tag:v hvc1 ./test/out/va_f1_hdr_v2.mp4
+```
+
 # Two-stage LDR to HDR Image Reconstruction
 This is the official implementation of paper title "A Two-stage Deep Network for High Dynamic Range Image Reconstruction". The paper has been accepted and expected to be published in the proceedings of CVPRW21. To download full paper **[[Click Here](https://arxiv.org/abs/2104.09386)]**.
 
