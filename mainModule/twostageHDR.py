@@ -407,44 +407,44 @@ class twostageHDR:
                 # log the output shape of the attention network
                 print(f"Attention Net Output Shape: {attentionnet_output.shape}, {attentionnet_output.max()}, {attentionnet_output.min()}")
 
-                # let's cook it to onnx (./weights/twostagehdr_attention.onnx)
-                torch.onnx.export(
-                    self.attentionNet,
-                    imgLDR,
-                    "./weights/twostagehdr_attention.onnx",
-                    verbose=True,
-                )
-                # as a test, let's load the onnx model and run it, then use its outputs
-                import onnx
-                import onnxruntime
-                onnx_model = onnx.load("./weights/twostagehdr_attention.onnx")
-                onnx.checker.check_model(onnx_model)
-                ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_attention.onnx")
-                ort_inputs = {ort_session.get_inputs()[0].name: imgLDR.cpu().numpy()}
-                ort_outs = ort_session.run(None, ort_inputs)
-                print(f"Output Shape: {ort_outs[0].shape}, {ort_outs[0].max()}, {ort_outs[0].min()}")
-                attentionnet_output = torch.tensor(ort_outs[0]).to(device)
+                # # let's cook it to onnx (./weights/twostagehdr_attention.onnx)
+                # torch.onnx.export(
+                #     self.attentionNet,
+                #     imgLDR,
+                #     "./weights/twostagehdr_attention.onnx",
+                #     verbose=True,
+                # )
+                # # as a test, let's load the onnx model and run it, then use its outputs
+                # import onnx
+                # import onnxruntime
+                # onnx_model = onnx.load("./weights/twostagehdr_attention.onnx")
+                # onnx.checker.check_model(onnx_model)
+                # ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_attention.onnx")
+                # ort_inputs = {ort_session.get_inputs()[0].name: imgLDR.cpu().numpy()}
+                # ort_outs = ort_session.run(None, ort_inputs)
+                # print(f"Output Shape: {ort_outs[0].shape}, {ort_outs[0].max()}, {ort_outs[0].min()}")
+                # attentionnet_output = torch.tensor(ort_outs[0]).to(device)
 
                 torch.cuda.empty_cache()
                 hdrnet_output = self.HDRRec(attentionnet_output.detach())
                 # log the output shape of the HDR range network
                 print(f"HDR Range Net Output Shape: {hdrnet_output.shape}, {hdrnet_output.max()}, {hdrnet_output.min()}")
 
-                # let's cook it to onnx (./weights/twostagehdr_hdrrec.onnx)
-                torch.onnx.export(
-                    self.HDRRec,
-                    attentionnet_output,
-                    "./weights/twostagehdr_hdrrec.onnx",
-                    verbose=True,
-                )
-                # as a test, let's load the onnx model and run it, then use its outputs
-                onnx_model = onnx.load("./weights/twostagehdr_hdrrec.onnx")
-                onnx.checker.check_model(onnx_model)
-                ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_hdrrec.onnx")
-                ort_inputs = {ort_session.get_inputs()[0].name: attentionnet_output.cpu().numpy()}
-                ort_outs = ort_session.run(None, ort_inputs)
-                print(f"Output Shape: {ort_outs[0].shape}, {ort_outs[0].max()}, {ort_outs[0].min()}")
-                hdrnet_output = torch.tensor(ort_outs[0]).to(device)
+                # # let's cook it to onnx (./weights/twostagehdr_hdrrec.onnx)
+                # torch.onnx.export(
+                #     self.HDRRec,
+                #     attentionnet_output,
+                #     "./weights/twostagehdr_hdrrec.onnx",
+                #     verbose=True,
+                # )
+                # # as a test, let's load the onnx model and run it, then use its outputs
+                # onnx_model = onnx.load("./weights/twostagehdr_hdrrec.onnx")
+                # onnx.checker.check_model(onnx_model)
+                # ort_session = onnxruntime.InferenceSession("./weights/twostagehdr_hdrrec.onnx")
+                # ort_inputs = {ort_session.get_inputs()[0].name: attentionnet_output.cpu().numpy()}
+                # ort_outs = ort_session.run(None, ort_inputs)
+                # print(f"Output Shape: {ort_outs[0].shape}, {ort_outs[0].max()}, {ort_outs[0].min()}")
+                # hdrnet_output = torch.tensor(ort_outs[0]).to(device)
 
                 b = datetime.now()
                 d = b - a
