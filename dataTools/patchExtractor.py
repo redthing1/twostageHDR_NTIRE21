@@ -17,14 +17,14 @@ class patchExtract:
         self.patchSize = int(config['imageW'])
 
         # Creating a directory to save processed samples
-        createDir(self.targetPath)
+        # createDir(self.targetPath)
         
         # Listing all images stored in the source directory
         self.sourceImages = imageList(self.sourcePath, True)
 
     def __call__(self):
 
-        bar = ProgressBar(len(self.sourceImages), max_width=int(50))
+        # bar = ProgressBar(len(self.sourceImages), max_width=int(50))
         counter = 0
         for IC, i in enumerate(self.sourceImages):
             img = cv2.imread(i)
@@ -36,7 +36,8 @@ class patchExtract:
                     cv2.imwrite(self.targetPath+str(counter)+".png", patch)
                     counter += 1
             if IC % 2 == 0:
-                bar.numerator = IC
-                print(Fore.CYAN + "Image Processd |", bar,Fore.CYAN, end='\r')
+                # bar.numerator = IC
+                # print(Fore.CYAN + "Image Processd |", bar,Fore.CYAN, end='\r')
+                print(Fore.CYAN + "Image Processd |", IC,Fore.CYAN, end='\r')
             
         print ("\n Patch Extracted:", counter)

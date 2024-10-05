@@ -29,7 +29,7 @@ class datasetSampler:
         self.patchSize= 128
 
         # Creating a directory to save processed samples
-        createDir(self.targetPath)
+        # createDir(self.targetPath)
         
         # Listing all images stored in the source directory
         self.sourceDataSamples = imageList(formatDirPath(self.gtPath))

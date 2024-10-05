@@ -106,7 +106,7 @@ class HDMHDRProcess:
         self.rootDir = rootDir
         
         self.targetDir = targetDir
-        createDir(self.targetDir)
+        # createDir(self.targetDir)
         self.rootDir = rootDir
 
         #gamma=2.24

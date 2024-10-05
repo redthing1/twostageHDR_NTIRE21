@@ -66,7 +66,7 @@ class twostageHDR:
         
 
         # Preapring model(s) for GPU acceleration
-        self.device =  torch.device('cuda:0') #torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')#
+        self.device =  torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.attentionNet = ResMKHDR().to(self.device)
         self.HDRRec = HDRRangeNet().to(self.device)
         self.discriminator = attentiomDiscriminator().to(self.device)
@@ -284,12 +284,14 @@ class twostageHDR:
         if outputDir:
             self.resultDir = outputDir
         
+        print(f"modelInference: testImagesPath={self.testImagesPath}, outputDir={self.resultDir}, modelName={self.modelName}, validation={validation}")
 
         modelInference = inference(inputRootDir=self.testImagesPath, outputRootDir=self.resultDir, modelName=self.modelName, validation=validation)
 
         testImageList = modelInference.testingSetProcessor()
+        print(f"imageList: {testImageList}")
         #print(testImageList, self.testImagesPath)
-        barVal = ProgressBar(len(testImageList)/3, max_width=int(50))
+        # barVal = ProgressBar(len(testImageList)/3, max_width=int(50))
         imageCounter = 0
         PSNRval = []
         SSIMVal = []
@@ -297,30 +299,32 @@ class twostageHDR:
         from datetime import datetime
         with torch.no_grad():
             for imgPath in testImageList:
+                print(f"Processing {imgPath}")
                 torch.cuda.empty_cache()
-                if "_medium" in imgPath:
-                    #if int(extractFileName(imgPath, True).split("_")[0]) % 3 ==0:
-                    #print(extractFileName(imgPath, True).split("_")[0])
-                    c += 1
-                    device = self.device
-                    imgLDR, lumLDR = modelInference.inputForInference(imgPath, noiseLevel=0)#.to(self.device)
-                    #print(imgL.shape, imgR.shape, imgPath)
-                    a = datetime.now()
-                    output = self.attentionNet(imgLDR.to(device))#.to(device)
+
+                #if int(extractFileName(imgPath, True).split("_")[0]) % 3 ==0:
+                #print(extractFileName(imgPath, True).split("_")[0])
+                c += 1
+                device = self.device
+                imgLDR, lumLDR = modelInference.inputForInference(imgPath, noiseLevel=0)#.to(self.device)
+                #print(imgL.shape, imgR.shape, imgPath)
+                a = datetime.now()
+                output = self.attentionNet(imgLDR.to(device))#.to(device)
+                
+                
+                torch.cuda.empty_cache()
+                output = self.HDRRec(output.detach())
+                b = datetime.now()
+                d = b - a
+                #print( d)
+                torch.cuda.empty_cache()
+                modelInference.saveModelOutput(output, imgPath, steps)
                     
-                    
-                    torch.cuda.empty_cache()
-                    output = self.HDRRec(output.detach())
-                    b = datetime.now()
-                    d = b - a
-                    #print( d)
-                    torch.cuda.empty_cache()
-                    modelInference.saveModelOutput(output, imgPath, steps)
-                     
-                    imageCounter += 1
-                    if imageCounter % 2 == 0:
-                        barVal.numerator = imageCounter
-                        print(Fore.CYAN + "Image Processd |", barVal,Fore.CYAN, end='\r')
+                imageCounter += 1
+                if imageCounter % 2 == 0:
+                    # barVal.numerator = imageCounter
+                    # print(Fore.CYAN + "Image Processd |", barVal,Fore.CYAN, end='\r')
+                    print(Fore.CYAN + "Image Processd |", imageCounter,Fore.CYAN, end='\r')
             print(c)
             #print("\nSteps: {} | PSNR: {:.2f} | SSIM: {:.2f}".format(steps, np.mean(PSNRval), np.mean(SSIMVal)))
     

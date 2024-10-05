@@ -18,13 +18,14 @@ def timer(start,end):
     return int(hours), int(minutes), int(seconds)
 
 def extractFileName(path, withoutExtension = None):
-    ntpath.basename("a/b/c")
-    head, tail = ntpath.split(path)
+    # ntpath.basename("a/b/c")
+    # head, tail = ntpath.split(path)
 
-    if withoutExtension:
-        return tail.split(".")[-2] or ntpath.basename(head).split(".")[-2]
+    # if withoutExtension:
+    #     return tail.split(".")[-2] or ntpath.basename(head).split(".")[-2]
 
-    return tail or ntpath.basename(head)
+    # return tail or ntpath.basename(head)
+    return ntpath.basename(path)
     
 
 

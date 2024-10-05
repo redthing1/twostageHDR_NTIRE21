@@ -14,6 +14,10 @@ import cv2
 from PIL import Image
 from dataTools.dataNormalization import *
 import skimage.io as io
+import imageio
+
+# set OPENCV_IO_ENABLE_OPENEXR
+os.environ['OPENCV_IO_ENABLE_OPENEXR'] = '1'
 
 def torchTensorToNumpy( image):
         imageNP = image.cpu().detach().numpy()#.reshape(image.shape[1], image.shape[2], image.shape[0])
@@ -35,6 +39,23 @@ def imwrite_uint16_png(image_path, image, alignratio_path):
     uint16_image_gt = np.round(image * align_ratio).astype(np.uint16)
     cv2.imwrite(image_path, cv2.cvtColor(uint16_image_gt, cv2.COLOR_RGB2BGR))
     return None
+
+# save hdr image as openexr
+def imwrite_openexr(image_path, image):
+    """ This function writes the hdr image as an openexr image.
+
+        Args:
+            image_path (str): Write path to the openexr image (needs to finish in .exr, e.g. 0000.exr)
+            image (np.ndarray): HDR image in float format.
+
+        Returns:
+            np.ndarray (np.float32, (h,w,3)): Returns the RGB HDR image specified in image_path.
+
+    """
+    
+    # use imageio to write the image
+    imageio.imwrite(image_path, image)
+
 class AddGaussianNoise(object):
     def __init__(self, noiseLevel):
         self.var = 0.1
@@ -73,7 +94,7 @@ class inference():
         lumImg = np.concatenate((lumImg, lumImg, lumImg), axis=2).astype(np.float32)
         #print(lumImg.shape)
         #print(type(imgL), imagePath)
-        device = torch.device('cuda:0')
+        device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
         transform = transforms.Compose([#transforms.Resize((512, 512)), 
                                         transforms.ToTensor(),
                                         #transforms.Normalize(normMean, normStd),
@@ -97,17 +118,19 @@ class inference():
         if step:
         
 
-            imageSavingPath = self.outputRootDir + self.modelName  + "/"  + datasetName + "/" + extractFileName(inputImagePath, True)  + \
+            imageSavingPath = self.outputRootDir + "/" + extractFileName(inputImagePath, True)  + \
                               "_" + str(step) + ext
             save_image(modelOutput[0], imageSavingPath)
             
         else:
-            imageSavingPath = self.outputRootDir + self.modelName  + "/"  + datasetName + "/" + extractFileName(inputImagePath, True) + ext
-            imageSavingPath16bit = self.outputRootDir + self.modelName  + "/"  + datasetName + "/" + extractFileName(inputImagePath, True).split("_")[-2] + ext
-            alignRationPath = self.outputRootDir + self.modelName  + "/"  + datasetName + "/" + extractFileName(inputImagePath, True).split("_")[-2]  + '_alignratio.npy'
+            imageSavingPath = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ext
+            imageSavingPath16bit = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ext
+            imageSavingPathExr = self.outputRootDir + "/" + extractFileName(inputImagePath, True) + ".exr"
+            alignRationPath = self.outputRootDir + "/" + extractFileName(inputImagePath, True)  + '_alignratio.npy'
             imgSq = modelOutput.squeeze(0).cpu().numpy()
             imgReshape =  np.transpose(imgSq,(1,2,0))
             imwrite_uint16_png(imageSavingPath16bit, imgReshape, alignRationPath)
+            imwrite_openexr(imageSavingPathExr, imgReshape)
             #save_image(modelOutput[0], imageSavingPath)
         
         #save_image(self.unNormalize(modelOutput[0]), imageSavingPath)
@@ -127,7 +150,7 @@ class inference():
         for t in testSets:
             testSetName = t.split("/")[-2]
             #print("Dir Path",self.outputRootDir + self.modelName  + "/" + testSetName )
-            createDir(self.outputRootDir + self.modelName  + "/" + testSetName)
+            # createDir(self.outputRootDir + self.modelName  + "/" + testSetName)
             imgInTargetDir = imageList(t, False)
             testImageList += imgInTargetDir
 
